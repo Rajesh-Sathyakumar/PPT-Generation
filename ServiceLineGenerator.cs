@@ -14,7 +14,7 @@ namespace AOAService
 {
     class DataGenerator
     {
-        string PresentationPath = ConfigurationManager.AppSettings["TemplatePPTPath"];
+        string PresentationPath = string.Empty ;
         string WorkbookPath = ConfigurationManager.AppSettings["TemplateExcelPath"];
 
         string DataGenarationPath = ConfigurationManager.AppSettings["DataGenerationPath"];
@@ -42,13 +42,27 @@ namespace AOAService
         object paramMissing = Type.Missing;
         string filename;
 
-        public void ReportsGenerator(string User_ID,string DB_Name, string Startdate, string EndDate, string Hospital, string UserName, string Email)
+        public void ReportsGenerator(string User_ID,string DB_Name, string Startdate, string EndDate, string Hospital, string UserName, string Email,string aprdrgExclusion, string Payers)
         {
+
+            
 
             string ProdConn = ConfigurationManager.ConnectionStrings["ProductionConnectionString"].ToString();
             string StgConn = ConfigurationManager.ConnectionStrings["StagingConnectionString"].ToString();
+            string APRDRGTypeParameter = string.Empty;
 
-
+            if (aprdrgExclusion == "False")
+            {
+                APRDRGTypeParameter = "Any APRDRG";
+                PresentationPath = ConfigurationManager.AppSettings["TemplatePPTPathwithoutExcludes"];
+            }
+            
+            else if (aprdrgExclusion == "True")
+            {
+                APRDRGTypeParameter = "Any APRDRG w/ Excludes";
+                PresentationPath = ConfigurationManager.AppSettings["TemplatePPTPathw/Excludes"];
+            }
+            
                 // Create an instance of PowerPoint.
                 try
                 {
@@ -56,9 +70,9 @@ namespace AOAService
 
                     // Create an instance Excel.          
                     excelApplication = new xlNS.Application();
-
+                 
                     DateTime dt = new DateTime();
-                    dt.ToString("d");
+                    //dt.ToString("d");
                
                     Console.WriteLine("Enter the DB Name");
                     filename = DB_Name;
@@ -86,27 +100,27 @@ namespace AOAService
                         Console.WriteLine(e.ToString());
                     }
 
-                    SqlCommand myCommand1 = new SqlCommand("[AOA_Readmissions]", Connection);
+                    SqlCommand myCommand1 = new SqlCommand("AOA_Readmissions_MasterPayer", Connection);
                     DataTable dt1 = new DataTable();
                     SqlDataAdapter da1 = new SqlDataAdapter(myCommand1);
                     DataSet ds1 = new DataSet();
 
-                    SqlCommand myCommand2 = new SqlCommand("[AOA_SeverityLevelList]", Connection);
+                    SqlCommand myCommand2 = new SqlCommand("AOA_SeverityLevelList_Payer", Connection);
                     DataTable dt2 = new DataTable();
                     SqlDataAdapter da2 = new SqlDataAdapter(myCommand2);
                     DataSet ds2 = new DataSet();
 
-                    SqlCommand myCommand3 = new SqlCommand("[AOA_Top5SpecialtiesList]", Connection);
+                    SqlCommand myCommand3 = new SqlCommand("AOA_Top5SpecialtiesList_Payer", Connection);
                     DataTable dt3 = new DataTable();
                     SqlDataAdapter da3 = new SqlDataAdapter(myCommand3);
                     DataSet ds3 = new DataSet();
 
-                    SqlCommand myCommand4 = new SqlCommand("[AOA_DischargeDispositionList]", Connection);
+                    SqlCommand myCommand4 = new SqlCommand("AOA_DischargeDispositionList_Payer", Connection);
                     DataTable dt4 = new DataTable();
                     SqlDataAdapter da4 = new SqlDataAdapter(myCommand4);
                     DataSet ds4 = new DataSet();
 
-                    SqlCommand myCommand5 = new SqlCommand("[AOA_DischargeDayList]", Connection);
+                    SqlCommand myCommand5 = new SqlCommand("AOA_DischargeDayList_Payer", Connection);
                     DataTable dt5 = new DataTable();
                     SqlDataAdapter da5 = new SqlDataAdapter(myCommand5);
                     DataSet ds5 = new DataSet();
@@ -123,7 +137,10 @@ namespace AOAService
                         myCommand1.Parameters.Add("@StartDate", SqlDbType.VarChar).Value = Startdate;
                         myCommand1.Parameters.Add("@EndDate", SqlDbType.VarChar).Value = EndDate;
                         myCommand1.Parameters.Add("@Hospital", SqlDbType.VarChar).Value = Hospital;
-                        myCommand1.CommandTimeout = 1000;
+                        myCommand1.Parameters.Add("@Type", SqlDbType.VarChar).Value = APRDRGTypeParameter;
+                        myCommand1.Parameters.Add("@PayorClassKey", SqlDbType.VarChar).Value = Payers;
+
+                    myCommand1.CommandTimeout = 1000;
 
                         Console.WriteLine("Finish");
                     
@@ -143,7 +160,10 @@ namespace AOAService
                         myCommand2.Parameters.Add("@StartDate", SqlDbType.VarChar).Value = Startdate;
                         myCommand2.Parameters.Add("@EndDate", SqlDbType.VarChar).Value = EndDate;
                         myCommand2.Parameters.Add("@Hospital", SqlDbType.VarChar).Value = Hospital;
-                        myCommand1.CommandTimeout = 1000;
+                        myCommand2.Parameters.Add("@Type", SqlDbType.VarChar).Value = APRDRGTypeParameter;
+                    myCommand2.Parameters.Add("@PayorClassKey", SqlDbType.VarChar).Value = Payers;
+
+                    myCommand2.CommandTimeout = 1000;
 
 
                     Console.WriteLine("Finish");
@@ -165,7 +185,10 @@ namespace AOAService
                         myCommand3.Parameters.Add("@StartDate", SqlDbType.VarChar).Value = Startdate;
                         myCommand3.Parameters.Add("@EndDate", SqlDbType.VarChar).Value = EndDate;
                         myCommand3.Parameters.Add("@Hospital", SqlDbType.VarChar).Value = Hospital;
-                        myCommand1.CommandTimeout = 1000;
+                    myCommand3.Parameters.Add("@Type", SqlDbType.VarChar).Value = APRDRGTypeParameter;
+                    myCommand3.Parameters.Add("@PayorClassKey", SqlDbType.VarChar).Value = Payers;
+
+                    myCommand3.CommandTimeout = 1000;
 
 
                     Console.WriteLine("Finish");
@@ -188,7 +211,10 @@ namespace AOAService
                         myCommand4.Parameters.Add("@StartDate", SqlDbType.VarChar).Value = Startdate;
                         myCommand4.Parameters.Add("@EndDate", SqlDbType.VarChar).Value = EndDate;
                         myCommand4.Parameters.Add("@Hospital", SqlDbType.VarChar).Value = Hospital;
-                        myCommand1.CommandTimeout = 1000;
+                    myCommand4.Parameters.Add("@Type", SqlDbType.VarChar).Value = APRDRGTypeParameter;
+                    myCommand4.Parameters.Add("@PayorClassKey", SqlDbType.VarChar).Value = Payers;
+
+                    myCommand4.CommandTimeout = 1000;
 
 
                     Console.WriteLine("Finish");
@@ -211,7 +237,10 @@ namespace AOAService
                         myCommand5.Parameters.Add("@StartDate", SqlDbType.VarChar).Value = Startdate;
                         myCommand5.Parameters.Add("@EndDate", SqlDbType.VarChar).Value = EndDate;
                         myCommand5.Parameters.Add("@Hospital", SqlDbType.VarChar).Value = Hospital;
-                        myCommand1.CommandTimeout = 1000;
+                    myCommand5.Parameters.Add("@Type", SqlDbType.VarChar).Value = APRDRGTypeParameter;
+                    myCommand5.Parameters.Add("@PayorClassKey", SqlDbType.VarChar).Value = Payers;
+
+                    myCommand5.CommandTimeout = 1000;
 
                         Console.WriteLine("Finish");
 
@@ -252,6 +281,8 @@ namespace AOAService
 
                     pptSlide = pptPresentation.Slides[1];
 
+                DateTime StartDateTime = Convert.ToDateTime(Startdate);
+                DateTime EndDateTime = Convert.ToDateTime(EndDate);
 
                 foreach (pptNS.Shape shape in pptSlide.Shapes)
                     {
@@ -288,6 +319,11 @@ namespace AOAService
                                                         
                                 }
                             }
+                        }
+                        else if (shape.Name == "DateParameter1")
+                        {
+                            
+                            shape.TextFrame.TextRange.Text = "All Physicians - " + String.Format("{0:y}", StartDateTime) + " to " + String.Format("{0:y}", EndDateTime);
                         }
                     }
 
@@ -330,7 +366,13 @@ namespace AOAService
                                }
                             }
                         }
+                        else if (shape.Name == "DateParameter2")
+                        {
+                            shape.TextFrame.TextRange.Text = "All Physicians - " + String.Format("{0:y}", StartDateTime) + " to " + String.Format("{0:y}", EndDateTime);
+                        }
                     }
+
+
 
                 PptPaste("Readmissions by Department", 2, "Readmissions By Top Specialty", 50, 150);
                 PptPaste("Readmision-DischargeDisposition", 4, "Readmision-DischargeDisposition", 50, 150);
@@ -344,6 +386,38 @@ namespace AOAService
 
                 excelWorkBook.Close();
                 excelApplication.Quit();
+
+                SqlCommand HospitaListQuery = new SqlCommand(" SELECT HospitalNAME FROM [" + DB_Name + "].DBO.HOSPITALS (nolock) WHERE HOSPITALKEY IN (" + Hospital + ")", Connection);
+                DataTable hsTable = new DataTable();
+                SqlDataAdapter hsAdapter = new SqlDataAdapter(HospitaListQuery);
+                DataSet hsDataset = new DataSet();
+                HospitaListQuery.CommandType = CommandType.Text;
+
+
+                HospitaListQuery.CommandTimeout = 1000;
+
+                Console.WriteLine("Finish");
+
+                hsAdapter.Fill(hsDataset);
+                string HospitalData = @"<table> 
+                                                
+                                                      <tr> <td> <b>Selected Facilities:</b> </td> </tr>
+                                                 
+                                                 ";
+                hsTable = hsDataset.Tables[0];
+
+                foreach (DataRow row in hsTable.Rows )
+                {
+                    foreach (DataColumn column in hsTable.Columns )
+                    {
+                        HospitalData += "<tr>" + row[column] + "</tr>";
+                    }
+
+                }
+
+                    HospitalData += "</table>";
+
+                Console.WriteLine("Finish");
 
                 Console.WriteLine("4,Working After Paste");
            
@@ -361,7 +435,7 @@ namespace AOAService
                     Console.WriteLine("PPT Generated with the name: " + filename + "_" + Time + ".pptx");
 
 
-                    Email_Send(currentPresentationPath, currentWorkbookPath, Email, DB_Name , UserName);
+                    Email_Send(currentPresentationPath, currentWorkbookPath, Email, DB_Name , UserName, HospitalData);
 
                     GeneralUtilities.SQLQueryExecutor(ProdConn, "UPDATE InputForReportReadmissions SET Status = 1,EndDate = getdate() , FileName =" + "'" + currentPresentationPath + "'" + " where InputUserID = " + User_ID);
 
@@ -654,7 +728,6 @@ namespace AOAService
                 range.CopyFromRecordset(rs, dtable.Rows.Count, dtable.Columns.Count);
                 //Console.WriteLine(tabname+ "ran");  
                                 
-
             }
             catch (Exception Ex)
             {
@@ -759,24 +832,42 @@ namespace AOAService
         }
 
         //Mail
-        public static void Email_Send(string PPTFile,string ExcelFile, string EmailID, string DatabaseName, string User)
+        public static void Email_Send(string PPTFile,string ExcelFile, string EmailID, string DatabaseName, string User, string hospitalData)
         {
 
-            MailMessage msg = new MailMessage();
-            msg.To.Add(EmailID.ToString());
-            
-            msg.From = new MailAddress("Baskaran@advisory.com");
-            msg.Subject = "Readmission Analytics - " + DatabaseName.ToString() + " started by user " + User;
-            msg.Body = "Readmissions Powerpoint and data worksheet has been successfully generated. Thank you ! :)";
-            msg.Attachments.Add(new Attachment(PPTFile));
-            msg.Attachments.Add(new Attachment(ExcelFile));
-            SmtpClient smclient = new SmtpClient("192.168.17.46");
-            smclient.Timeout = 300000;
-            smclient.Send(msg);
+            using (MailMessage msg = new MailMessage())
+            {
+                msg.To.Add(EmailID.ToString());
 
- 
-            Console.WriteLine("Mail Sent Successfully!");
+                msg.From = new MailAddress("TeamAOA@advisory.com", "AOA Team");
+                msg.Subject = "Readmission Analytics - " + DatabaseName.ToString() + " started by user " + User;
+                msg.IsBodyHtml = true;
+                msg.Body = @"
+</!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+Readmissions Powerpoint and data worksheet has been successfully generated.
+</br>
+" + hospitalData + @"
 
+</br>
+
+Thank you !
+
+</body>
+</html>";
+                msg.Attachments.Add(new Attachment(PPTFile));
+                msg.Attachments.Add(new Attachment(ExcelFile));
+                using (SmtpClient smclient = new SmtpClient("192.168.17.46"))
+                {
+                    smclient.Timeout = 300000;
+                    smclient.Send(msg);
+                    Console.WriteLine("Mail Sent Successfully!");
+                }
+            }
         }
     }
 }

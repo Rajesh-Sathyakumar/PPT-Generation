@@ -75,7 +75,9 @@ namespace AOAService
                                         Startdate,
                                         EndDate,
                                         Email,
-                                        UserName
+                                        UserName,
+                                        [aprdrgw/excludes],
+                                        PayerKeys
                                         FROM InputForReportReadmissions (NOLOCK)
                                         WHERE status = '-1' ORDER BY [TimeStamp]";
                         
@@ -100,6 +102,8 @@ namespace AOAService
                         string Hospital;
                         string UserName;
                         string Email;
+                        string aprdrgExclusion;
+                        string Payers;
 
                         InputUserID = dataTable.Rows[0]["InputUserID"].ToString();
                         DBName = dataTable.Rows[0]["DatabaseName"].ToString();
@@ -108,7 +112,8 @@ namespace AOAService
                         Hospital = dataTable.Rows[0]["Hospital"].ToString();
                         UserName = dataTable.Rows[0]["Username"].ToString();
                         Email = dataTable.Rows[0]["Email"].ToString();
-
+                        aprdrgExclusion = dataTable.Rows[0]["aprdrgw/excludes"].ToString();
+                        Payers = dataTable.Rows[0]["PayerKeys"].ToString();
                         Console.WriteLine("Executing SPs");
 
                         Utilities SetStatus = new AOAService.Utilities();
@@ -118,7 +123,7 @@ namespace AOAService
 
                         Console.WriteLine("Calling PPT Generator");
                         DataGenerator SL = new DataGenerator();
-                        SL.ReportsGenerator(InputUserID, DBName, Startdate, EndDate, Hospital, UserName, Email);
+                        SL.ReportsGenerator(InputUserID, DBName, Startdate, EndDate, Hospital, UserName, Email,aprdrgExclusion,Payers);
                     }
 
                 }
